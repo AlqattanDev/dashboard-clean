@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Frontend Debug Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div class="p-8" x-data="testComponent()" x-init="init()">
+        <h1 class="text-2xl font-bold mb-4">Frontend Debug Test</h1>
+        
+        <div class="space-y-4">
+            <div>
+                <strong>Authentication Status:</strong> 
+                <span x-text="isAuthenticated ? 'Authenticated' : 'Not Authenticated'"></span>
+            </div>
+            
+            <div>
+                <strong>Current User:</strong> 
+                <span x-text="user ? JSON.stringify(user) : 'No user'"></span>
+            </div>
+            
+            <div>
+                <strong>User Role:</strong> 
+                <span x-text="user?.role || 'No role'"></span>
+            </div>
+            
+            <div>
+                <strong>Can Edit Functions:</strong> 
+                <span x-text="canEditFunctions() ? 'Yes' : 'No'"></span>
+            </div>
+            
+            <div>
+                <strong>Alpine.js Loaded:</strong> 
+                <span x-text="'Yes - Alpine.js is working'"></span>
+            </div>
+            
+            <div x-show="canEditFunctions()" class="bg-green-100 p-4 rounded">
+                <strong>Add Function Button Should Be Visible!</strong>
+                <button class="ml-4 bg-blue-600 text-white px-4 py-2 rounded">Add Function</button>
+            </div>
+            
+            <div x-show="!canEditFunctions()" class="bg-red-100 p-4 rounded">
+                <strong>Add Function Button Is Hidden</strong>
+                <p>User role: <span x-text="user?.role"></span></p>
+                <p>Expected: admin</p>
+            </div>
+            
+            <button @click="testLogin()" class="bg-blue-600 text-white px-4 py-2 rounded">
+                Test Admin Login
+            </button>
+            
+            <div x-show="loginResult" class="mt-4 p-4 bg-gray-100 rounded">
+                <strong>Login Result:</strong>
+                <pre x-text="loginResult"></pre>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function testComponent() {
+            return {
+                isAuthenticated: false,
+                user: null,
+                loginResult: '',
+                
+                async init() {
+                    console.log('Test component initialized');
+                    await this.checkAuth();
+                },
+                
+                async checkAuth() {
+                    const token = localStorage.getItem('token');
+                    console.log('Token from localStorage:', token);
+                    
+                    if (!token) {
+                        console.log('No token found');
+                        return;
+                    }
+                    
+                    try {
+                        const response = await fetch('/api/v1/auth/me', {
+                            headers: {
+                                'Authorization': `Bearer ${token}`,
+                                'Content-Type': 'application/json'
+                            }
+                        });
+                        
+                        if (response.ok) {
+                            this.user = await response.json();
+                            this.isAuthenticated = true;
+                            console.log('User loaded:', this.user);
+                        } else {
+                            console.log('Auth check failed:', response.status);
+                            localStorage.removeItem('token');
+                        }
+                    } catch (error) {
+                        console.error('Auth check error:', error);
+                    }
+                },
+                
+                canEditFunctions() {
+                    const result = this.user && this.user.role === 'admin';
+                    console.log('canEditFunctions check:', {
+                        user: this.user,
+                        role: this.user?.role,
+                        result: result
+                    });
+                    return result;
+                },
+                
+                async testLogin() {
+                    try {
+                        const response = await fetch('/api/v1/auth/login', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                username: 'admin',
+                                password: 'admin123'
+                            })
+                        });
+                        
+                        if (response.ok) {
+                            const data = await response.json();
+                            localStorage.setItem('token', data.access_token);
+                            this.user = data.user;
+                            this.isAuthenticated = true;
+                            this.loginResult = JSON.stringify(data, null, 2);
+                            console.log('Login successful:', data);
+                        } else {
+                            const error = await response.text();
+                            this.loginResult = `Login failed: ${error}`;
+                            console.error('Login failed:', error);
+                        }
+                    } catch (error) {
+                        this.loginResult = `Login error: ${error.message}`;
+                        console.error('Login error:', error);
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+</html>

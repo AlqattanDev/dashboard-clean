@@ -7,10 +7,10 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
-# Rate limiting imports (disabled for now)
-# from slowapi import Limiter, _rate_limit_exceeded_handler
-# from slowapi.util import get_remote_address
-# from slowapi.errors import RateLimitExceeded
+# Rate limiting imports
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 from pathlib import Path
 import uvicorn
 from loguru import logger
@@ -24,6 +24,7 @@ from api.auth import router as auth_router
 from api.users import router as users_router
 from api.functions import router as functions_router
 from api.requests import router as requests_router
+from api.dashboard import router as dashboard_router
 
 # Create FastAPI app
 app = FastAPI(
@@ -32,11 +33,10 @@ app = FastAPI(
     version="3.0.0"
 )
 
-# Rate limiting (simplified - remove for now to avoid conflicts)
-# We'll add rate limiting back later with proper configuration
-# limiter = Limiter(key_func=get_remote_address)
-# app.state.limiter = limiter
-# app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+# Rate limiting configuration
+limiter = Limiter(key_func=get_remote_address)
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 # CORS middleware
 app.add_middleware(
@@ -85,6 +85,7 @@ app.include_router(auth_router)
 app.include_router(users_router)
 app.include_router(functions_router)
 app.include_router(requests_router)
+app.include_router(dashboard_router)
 
 # Get paths
 backend_dir = Path(__file__).parent

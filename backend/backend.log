@@ -1,0 +1,32 @@
+/Users/alialqattan/Clones/dashboard-clean/backend/main.py:50: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  @app.on_event("startup")
+/Users/alialqattan/Clones/dashboard-clean/backend/main.py:73: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  @app.on_event("shutdown")
+INFO:     Will watch for changes in these directories: ['/Users/alialqattan/Clones/dashboard-clean/backend']
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [58269] using WatchFiles
+INFO:     Started server process [58271]
+INFO:     Waiting for application startup.
+2025-09-22 04:28:04.333 | INFO     | main:startup_event:55 - Connecting to MongoDB...
+2025-09-22 04:28:04.340 | INFO     | main:startup_event:57 - Database connected successfully
+2025-09-22 04:28:04.340 | INFO     | main:startup_event:60 - Creating default admin user...
+2025-09-22 04:28:04.341 | INFO     | main:startup_event:64 - Creating sample functions...
+2025-09-22 04:28:04.341 | INFO     | main:startup_event:67 - Application startup complete
+INFO:     Application startup complete.
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+2025-09-22 04:28:09.700 | INFO     | main:shutdown_event:78 - Database connections closed
+INFO:     Application shutdown complete.
+INFO:     Finished server process [58271]
+ℹ️ Sample functions initialization complete
+INFO:     Stopping reloader process [58269]

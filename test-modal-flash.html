@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modal Flash Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <style>
+        [x-cloak] { display: none !important; }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    
+    <div x-data="testApp()" x-init="init()" class="p-8">
+        <h1 class="text-3xl font-bold mb-6">🧪 Modal Flash Test</h1>
+        
+        <div class="mb-6">
+            <button @click="showModal = true" class="bg-blue-600 text-white px-4 py-2 rounded">
+                Show Test Modal
+            </button>
+            <button @click="refresh()" class="bg-red-600 text-white px-4 py-2 rounded ml-2">
+                Refresh Test (Check for Flash)
+            </button>
+        </div>
+        
+        <div class="mb-4">
+            <p>Component Ready: <span x-text="componentReady ? 'Yes' : 'No'" :class="componentReady ? 'text-green-600' : 'text-red-600'"></span></p>
+            <p>Refresh Count: <span x-text="refreshCount"></span></p>
+        </div>
+        
+        <!-- Test Modal with x-cloak -->
+        <div x-show="showModal && componentReady" x-cloak class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50" 
+             @click.self="showModal = false">
+            <div class="relative top-20 mx-auto p-5 border w-full max-w-lg shadow-lg rounded-md bg-white">
+                <div class="mb-4">
+                    <h3 class="text-lg font-medium text-gray-900">Test Modal</h3>
+                    <p class="text-sm text-gray-600">If you saw this flash on page load, there's still an issue!</p>
+                </div>
+                <button @click="showModal = false" class="bg-gray-600 text-white px-4 py-2 rounded">
+                    Close
+                </button>
+            </div>
+        </div>
+        
+        <!-- Instructions -->
+        <div class="bg-blue-100 p-4 rounded-lg">
+            <h3 class="font-medium mb-2">Test Instructions:</h3>
+            <ol class="list-decimal list-inside space-y-1 text-sm">
+                <li>Click "Refresh Test" multiple times rapidly</li>
+                <li>Watch for any flash of the modal during page initialization</li>
+                <li>If no modal flashes appear = ✅ Fix is working!</li>
+                <li>If modal still flashes = ❌ Need further debugging</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        function testApp() {
+            return {
+                showModal: false,
+                componentReady: false,
+                refreshCount: parseInt(localStorage.getItem('refreshCount') || '0'),
+                
+                init() {
+                    // Simulate component initialization delay
+                    setTimeout(() => {
+                        this.componentReady = true;
+                    }, 50); // Small delay to simulate real component loading
+                },
+                
+                refresh() {
+                    this.refreshCount++;
+                    localStorage.setItem('refreshCount', this.refreshCount.toString());
+                    window.location.reload();
+                }
+            }
+        }
+    </script>
+</body>
+</html>

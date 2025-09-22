@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug - Dashboard UI Elements</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/static/css/custom.css">
+    
+    <!-- Load our JavaScript before Alpine.js -->
+    <script src="/static/js/utils/api.js"></script>
+    <script src="/static/js/utils/helpers.js"></script>
+    <script src="/static/js/app.js"></script>
+    <script src="/static/js/components/functions-page.js"></script>
+    <script src="/static/js/components/users-page.js"></script>
+    <script src="/static/js/components/requests-page.js"></script>
+    
+    <!-- Load Alpine.js last -->
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    
+    <div x-data="debugApp()" x-init="init()" class="p-8">
+        <h1 class="text-3xl font-bold mb-6">🐛 Dashboard UI Debug Tool</h1>
+        
+        <!-- Authentication Status -->
+        <div class="mb-8 p-6 bg-white rounded-lg shadow">
+            <h2 class="text-xl font-semibold mb-4">Authentication Status</h2>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <span class="font-medium">Token:</span> 
+                    <span x-text="token ? 'Present' : 'Missing'" :class="token ? 'text-green-600' : 'text-red-600'"></span>
+                </div>
+                <div>
+                    <span class="font-medium">User:</span> 
+                    <span x-text="user ? user.username : 'Not loaded'" :class="user ? 'text-green-600' : 'text-red-600'"></span>
+                </div>
+                <div>
+                    <span class="font-medium">Role:</span> 
+                    <span x-text="user ? user.role : 'Unknown'" :class="user && user.role === 'admin' ? 'text-green-600' : 'text-red-600'"></span>
+                </div>
+                <div>
+                    <span class="font-medium">GlobalUser:</span> 
+                    <span x-text="globalUser ? globalUser.username : 'Not set'" :class="globalUser ? 'text-green-600' : 'text-red-600'"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Login -->
+        <div class="mb-8 p-6 bg-white rounded-lg shadow">
+            <h2 class="text-xl font-semibold mb-4">Quick Login Test</h2>
+            <button @click="quickLogin()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                Login as Admin (admin/admin123)
+            </button>
+            <button @click="clearAuth()" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 ml-2">
+                Clear Auth
+            </button>
+        </div>
+
+        <!-- UI Elements Test -->
+        <div class="mb-8 p-6 bg-white rounded-lg shadow">
+            <h2 class="text-xl font-semibold mb-4">UI Elements Visibility Test</h2>
+            
+            <!-- Functions Component Test -->
+            <div x-data="functionsPage()" class="mb-6" @user-changed.window="$nextTick(() => $el.__x && $el.__x.refreshAllData && $el.__x.refreshAllData())">
+                <h3 class="text-lg font-medium mb-2">Functions Page Component</h3>
+                <div class="space-y-2">
+                    <div>
+                        <span class="font-medium">Current User:</span> 
+                        <span x-text="currentUser ? JSON.stringify(currentUser) : 'None'"></span>
+                    </div>
+                    <div>
+                        <span class="font-medium">User Role:</span> 
+                        <span x-text="userRole"></span>
+                    </div>
+                    <div>
+                        <span class="font-medium">Can Edit Functions:</span> 
+                        <span x-text="canEditFunctions() ? 'YES' : 'NO'" :class="canEditFunctions() ? 'text-green-600 font-bold' : 'text-red-600 font-bold'"></span>
+                    </div>
+                    <div x-show="canEditFunctions()" class="bg-green-100 p-3 rounded">
+                        ✅ "Add Function" button should be VISIBLE
+                        <button class="ml-4 bg-blue-600 text-white px-3 py-1 rounded text-sm">Add Function</button>
+                    </div>
+                    <div x-show="!canEditFunctions()" class="bg-red-100 p-3 rounded">
+                        ❌ "Add Function" button is HIDDEN
+                    </div>
+                </div>
+            </div>
+
+            <!-- Users Component Test -->
+            <div x-data="usersPage()" class="mb-6" @user-changed.window="$nextTick(() => $el.__x && $el.__x.refreshAllData && $el.__x.refreshAllData())">
+                <h3 class="text-lg font-medium mb-2">Users Page Component</h3>
+                <div class="space-y-2">
+                    <div>
+                        <span class="font-medium">Can Manage Users:</span> 
+                        <span x-text="canManageUsers() ? 'YES' : 'NO'" :class="canManageUsers() ? 'text-green-600 font-bold' : 'text-red-600 font-bold'"></span>
+                    </div>
+                    <div x-show="canManageUsers()" class="bg-green-100 p-3 rounded">
+                        ✅ "Add User" button should be VISIBLE
+                        <button class="ml-4 bg-blue-600 text-white px-3 py-1 rounded text-sm">Add User</button>
+                    </div>
+                    <div x-show="!canManageUsers()" class="bg-red-100 p-3 rounded">
+                        ❌ "Add User" button is HIDDEN
+                    </div>
+                </div>
+            </div>
+
+            <!-- Requests Component Test -->
+            <div x-data="requestsPage()" class="mb-6" @user-changed.window="$nextTick(() => $el.__x && $el.__x.refreshAllData && $el.__x.refreshAllData())">
+                <h3 class="text-lg font-medium mb-2">Requests Page Component</h3>
+                <div class="space-y-2">
+                    <div>
+                        <span class="font-medium">Can Review Requests:</span> 
+                        <span x-text="canReviewRequests() ? 'YES' : 'NO'" :class="canReviewRequests() ? 'text-green-600 font-bold' : 'text-red-600 font-bold'"></span>
+                    </div>
+                    <div x-show="canReviewRequests()" class="bg-green-100 p-3 rounded">
+                        ✅ Approve/Reject buttons should be VISIBLE
+                    </div>
+                    <div x-show="!canReviewRequests()" class="bg-red-100 p-3 rounded">
+                        ❌ Approve/Reject buttons are HIDDEN
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Live Updates -->
+        <div class="p-6 bg-white rounded-lg shadow">
+            <h2 class="text-xl font-semibold mb-4">Live Updates</h2>
+            <div class="text-sm bg-gray-100 p-4 rounded font-mono">
+                <div>Last Update: <span x-text="lastUpdate"></span></div>
+                <div>Update Count: <span x-text="updateCount"></span></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function debugApp() {
+            return {
+                token: null,
+                user: null,
+                globalUser: null,
+                lastUpdate: 'Never',
+                updateCount: 0,
+
+                init() {
+                    this.refreshData();
+                    
+                    // Listen for user changes
+                    window.addEventListener('user-changed', (e) => {
+                        this.lastUpdate = new Date().toLocaleTimeString();
+                        this.updateCount++;
+                        this.refreshData();
+                    });
+                    
+                    // Refresh every 2 seconds
+                    setInterval(() => {
+                        this.refreshData();
+                    }, 2000);
+                },
+
+                refreshData() {
+                    this.token = localStorage.getItem('token');
+                    this.globalUser = window.GlobalUser.getUser();
+                    this.user = this.globalUser;
+                },
+
+                async quickLogin() {
+                    try {
+                        const response = await fetch('/api/v1/auth/login', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ username: 'admin', password: 'admin123' })
+                        });
+                        
+                        if (response.ok) {
+                            const data = await response.json();
+                            localStorage.setItem('token', data.access_token);
+                            window.GlobalUser.setUser(data.user);
+                            this.refreshData();
+                        }
+                    } catch (error) {
+                        console.error('Login failed:', error);
+                    }
+                },
+
+                clearAuth() {
+                    localStorage.removeItem('token');
+                    window.GlobalUser.setUser(null);
+                    this.refreshData();
+                }
+            }
+        }
+    </script>
+</body>
+</html>
