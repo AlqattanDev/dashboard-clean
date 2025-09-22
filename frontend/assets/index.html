@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Operations Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.8"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.8/dist/ext/json-enc.js"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link rel="stylesheet" href="/static/css/custom.css">
+</head>
+<body class="bg-gray-50 min-h-screen" x-data="app()" x-init="init()">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg" x-show="isAuthenticated">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center">
+                    <h1 class="text-xl font-bold text-gray-800">Operations Dashboard</h1>
+                </div>
+                <div class="hidden md:flex space-x-8">
+                    <a href="#" @click="loadPage('dashboard')" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Dashboard</a>
+                    <a href="#" @click="loadPage('functions')" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Functions</a>
+                    <a href="#" @click="loadPage('requests')" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Requests</a>
+                    <a href="#" @click="loadPage('users')" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Users</a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="relative" x-data="{ open: false }">
+                        <button @click="open = !open" class="flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            <div class="h-8 w-8 rounded-full bg-indigo-500 flex items-center justify-center">
+                                <span class="text-sm font-medium text-white" x-text="user?.username?.charAt(0)?.toUpperCase() || 'U'"></span>
+                            </div>
+                        </button>
+                        <div x-show="open" @click.away="open = false" class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
+                            <div class="py-1">
+                                <button @click="logout()" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Sign out</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto py-6 px-4" x-show="isAuthenticated" id="main-content">
+        <!-- Content will be loaded here -->
+    </main>
+
+    <!-- Login Page -->
+    <div x-show="!isAuthenticated" class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-md w-full space-y-8">
+            <div>
+                <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">Sign in to your account</h2>
+                <p class="mt-2 text-center text-sm text-gray-600">Operations Dashboard</p>
+            </div>
+            
+            <form @submit.prevent="login()" class="mt-8 space-y-6">
+                <div class="space-y-4">
+                    <div>
+                        <label for="username" class="block text-sm font-medium text-gray-700">Username</label>
+                        <input 
+                            id="username" 
+                            x-model="loginForm.username"
+                            type="text" 
+                            required 
+                            class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm" 
+                            placeholder="Enter your username">
+                    </div>
+                    
+                    <div>
+                        <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+                        <input 
+                            id="password" 
+                            x-model="loginForm.password"
+                            type="password" 
+                            required 
+                            class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm" 
+                            placeholder="Enter your password">
+                    </div>
+                </div>
+                
+                <div>
+                    <button 
+                        type="submit" 
+                        :disabled="isLogging"
+                        class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50">
+                        <span x-show="isLogging">Signing in...</span>
+                        <span x-show="!isLogging">Sign in</span>
+                    </button>
+                </div>
+            </form>
+            
+            <!-- Default credentials info -->
+            <div class="mt-8 bg-gray-50 rounded-lg p-4">
+                <h3 class="text-sm font-medium text-gray-900 mb-2">Default Credentials:</h3>
+                <div class="text-xs text-gray-600 space-y-1">
+                    <div><strong>Admin:</strong> admin / admin123</div>
+                    <div><strong>Leader:</strong> leader1 / leader123</div>
+                    <div><strong>Member:</strong> member1 / member123</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alert Container -->
+    <div id="alert-container" class="fixed top-4 right-4 z-50 space-y-2 max-w-sm"></div>
+
+    <!-- Modals -->
+    <div id="modal-overlay" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden z-40"></div>
+    <div id="modal-content" class="fixed inset-0 flex items-center justify-center hidden z-50"></div>
+
+    <script src="/static/js/dashboard.js"></script>
+    <script>
+        function app() {
+            return {
+                isAuthenticated: false,
+                isLogging: false,
+                user: null,
+                currentPage: 'dashboard',
+                loginForm: {
+                    username: '',
+                    password: ''
+                },
+
+                async init() {
+                    await this.checkAuth();
+                    if (this.isAuthenticated) {
+                        this.loadPage('dashboard');
+                    }
+                },
+
+                async checkAuth() {
+                    const token = localStorage.getItem('token');
+                    if (!token) {
+                        this.isAuthenticated = false;
+                        return;
+                    }
+
+                    try {
+                        const response = await fetch('/api/v1/auth/me', {
+                            headers: { 'Authorization': `Bearer ${token}` }
+                        });
+
+                        if (response.ok) {
+                            this.user = await response.json();
+                            this.isAuthenticated = true;
+                        } else {
+                            localStorage.removeItem('token');
+                            this.isAuthenticated = false;
+                        }
+                    } catch (error) {
+                        localStorage.removeItem('token');
+                        this.isAuthenticated = false;
+                    }
+                },
+
+                async login() {
+                    this.isLogging = true;
+                    
+                    try {
+                        const response = await fetch('/api/v1/auth/login', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(this.loginForm)
+                        });
+
+                        const data = await response.json();
+
+                        if (response.ok) {
+                            localStorage.setItem('token', data.access_token);
+                            this.user = data.user;
+                            this.isAuthenticated = true;
+                            this.showAlert('Login successful!', 'success');
+                            this.loadPage('dashboard');
+                        } else {
+                            this.showAlert(data.detail || 'Login failed', 'error');
+                        }
+                    } catch (error) {
+                        this.showAlert('Network error occurred', 'error');
+                    } finally {
+                        this.isLogging = false;
+                    }
+                },
+
+                logout() {
+                    localStorage.removeItem('token');
+                    this.isAuthenticated = false;
+                    this.user = null;
+                    this.showAlert('Logged out successfully', 'info');
+                },
+
+                async loadPage(page) {
+                    this.currentPage = page;
+                    const content = document.getElementById('main-content');
+                    
+                    try {
+                        const response = await fetch(`/static/${page}.html`);
+                        if (response.ok) {
+                            content.innerHTML = await response.text();
+                            // Initialize page-specific functionality
+                            if (window[page + 'Init']) {
+                                window[page + 'Init']();
+                            }
+                        } else {
+                            content.innerHTML = `<div class="text-center py-8"><h2 class="text-2xl font-bold text-gray-900">Page not found</h2></div>`;
+                        }
+                    } catch (error) {
+                        content.innerHTML = `<div class="text-center py-8"><h2 class="text-2xl font-bold text-red-600">Error loading page</h2></div>`;
+                    }
+                },
+
+                showAlert(message, type = 'info') {
+                    const alertContainer = document.getElementById('alert-container');
+                    const alert = document.createElement('div');
+                    
+                    const bgColor = {
+                        'success': 'bg-green-100 border-green-500 text-green-700',
+                        'error': 'bg-red-100 border-red-500 text-red-700',
+                        'warning': 'bg-yellow-100 border-yellow-500 text-yellow-700',
+                        'info': 'bg-blue-100 border-blue-500 text-blue-700'
+                    }[type] || 'bg-gray-100 border-gray-500 text-gray-700';
+                    
+                    alert.className = `${bgColor} border-l-4 p-4 mb-4 rounded-md shadow-lg transition-all duration-300`;
+                    alert.innerHTML = `
+                        <div class="flex justify-between items-center">
+                            <span>${message}</span>
+                            <button onclick="this.parentElement.parentElement.remove()" class="ml-4 text-lg font-bold">&times;</button>
+                        </div>
+                    `;
+                    
+                    alertContainer.appendChild(alert);
+                    
+                    setTimeout(() => alert.remove(), 5000);
+                }
+            }
+        }
+    </script>
+</body>
+</html>

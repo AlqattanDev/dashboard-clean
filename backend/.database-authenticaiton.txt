@@ -1,0 +1,21 @@
+╭───────────────────────────────────────────────────────────╮
+│ ✻ Welcome to Claude Code!                                 │
+│                                                           │
+│   /help for help, /status for your current setup          │
+│                                                           │
+│   cwd: /Users/alialqattan/Clones/dashboard-clean/backend  │
+╰───────────────────────────────────────────────────────────╯
+
+ Tips for getting started:
+
+  Run /init to create a CLAUDE.md file with instructions for Claude
+  Use Claude to help with file analysis, editing, bash commands and git
+  Be as specific as you would with another engineer for the best results
+  ⎿  Read requirements.txt (15 lines)
+
+> /compact .
+  ⎿  Compacted (ctrl+r to see full summary)
+
+! mv plan-docs/database-authenticaiton.txt plan-docs/.database-authenticaiton.txt
+  ⎿  mv: rename plan-docs/database-authenticaiton.txt to plan-docs/.database-authenticaiton.txt: No such file or directory
+
