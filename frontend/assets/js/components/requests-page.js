@@ -93,12 +93,16 @@ function requestsPage() {
             this.error = null;
 
             try {
-                this.requests = await window.apiClient.getRequests();
-                this.totalRequests = this.requests.length;
+                const response = await window.apiClient.getRequests();
+                // Ensure response is always an array
+                this.requests = Array.isArray(response) ? response : [];
+                console.log('Loaded requests:', this.requests); // Debug log
                 this.applyFilters();
             } catch (error) {
-                this.error = error.message;
-                window.GlobalAlert.show(error.message, 'error');
+                console.error('Failed to load requests:', error);
+                this.error = error.message || 'Failed to load requests';
+                this.requests = []; // Ensure requests is still an array
+                window.GlobalAlert.show(this.error, 'error');
             } finally {
                 this.loading = false;
             }
@@ -106,16 +110,22 @@ function requestsPage() {
 
         // Apply search and filters
         applyFilters() {
-            let filtered = [...this.requests];
+            // Ensure requests is always an array
+            let filtered = Array.isArray(this.requests) ? [...this.requests] : [];
 
             // Apply search filter
             if (this.searchTerm) {
                 const term = this.searchTerm.toLowerCase();
-                filtered = filtered.filter(request => 
-                    request.function_name.toLowerCase().includes(term) ||
-                    request.user_username.toLowerCase().includes(term) ||
-                    (request.rejection_reason && request.rejection_reason.toLowerCase().includes(term))
-                );
+                filtered = filtered.filter(request => {
+                    // Defensive access to properties that might be undefined/null
+                    const functionName = (request.function_name || '').toLowerCase();
+                    const userName = (request.user_username || '').toLowerCase();
+                    const rejectionReason = (request.rejection_reason || '').toLowerCase();
+                    
+                    return functionName.includes(term) ||
+                           userName.includes(term) ||
+                           rejectionReason.includes(term);
+                });
             }
 
             // Apply status filter
@@ -126,21 +136,38 @@ function requestsPage() {
             // Apply date filters
             if (this.dateFrom) {
                 const fromDate = new Date(this.dateFrom);
-                filtered = filtered.filter(request => 
-                    new Date(request.created_at) >= fromDate
-                );
+                filtered = filtered.filter(request => {
+                    try {
+                        return new Date(request.created_at) >= fromDate;
+                    } catch (e) {
+                        console.warn('Invalid date in request:', request.created_at);
+                        return false;
+                    }
+                });
             }
 
             if (this.dateTo) {
                 const toDate = new Date(this.dateTo);
                 toDate.setHours(23, 59, 59, 999); // End of day
-                filtered = filtered.filter(request => 
-                    new Date(request.created_at) <= toDate
-                );
+                filtered = filtered.filter(request => {
+                    try {
+                        return new Date(request.created_at) <= toDate;
+                    } catch (e) {
+                        console.warn('Invalid date in request:', request.created_at);
+                        return false;
+                    }
+                });
             }
 
             // Sort by creation date, newest first
-            filtered.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+            filtered.sort((a, b) => {
+                try {
+                    return new Date(b.created_at) - new Date(a.created_at);
+                } catch (e) {
+                    console.warn('Error sorting requests by date:', e);
+                    return 0;
+                }
+            });
 
             this.filteredRequests = filtered;
             this.totalRequests = filtered.length;
