@@ -9,7 +9,6 @@
     
     <!-- Load our JavaScript before Alpine.js -->
     <script src="/static/js/utils/api.js"></script>
-    <script src="/static/js/utils/helpers.js"></script>
     <script src="/static/js/app.js"></script>
     <script src="/static/js/components/dashboard-page.js"></script>
     <script src="/static/js/components/functions-page.js"></script>
@@ -395,7 +394,7 @@
 
             <!-- Create Function Modal -->
             <div x-show="showCreateModal" x-cloak class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50" 
-                 @click.self="closeModals()"
+                 @click.self="closeModals()">
                 <div class="relative top-20 mx-auto p-5 border w-full max-w-2xl shadow-lg rounded-md bg-white">
                     <div class="mb-4">
                         <h3 class="text-lg font-medium text-gray-900">Create New Function</h3>
@@ -467,7 +466,7 @@
 
             <!-- Edit Function Modal -->
             <div x-show="showEditModal" x-cloak class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50" 
-                 @click.self="closeModals()"
+                 @click.self="closeModals()">
                 <div class="relative top-20 mx-auto p-5 border w-full max-w-2xl shadow-lg rounded-md bg-white">
                     <div class="mb-4">
                         <h3 class="text-lg font-medium text-gray-900">Edit Function</h3>
@@ -539,7 +538,7 @@
 
             <!-- Execute Function Modal -->
             <div x-show="showExecuteModal" x-cloak class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50" 
-                 @click.self="closeModals()"
+                 @click.self="closeModals()">
                 <div class="relative top-20 mx-auto p-5 border w-full max-w-lg shadow-lg rounded-md bg-white">
                     <div class="mb-4">
                         <h3 class="text-lg font-medium text-gray-900">Execute Function</h3>
@@ -580,6 +579,7 @@
                     </form>
                 </div>
             </div>
+
         </div>
         
         <!-- Users Page -->
@@ -735,7 +735,7 @@
 
             <!-- Create User Modal -->
             <div x-show="showCreateModal" x-cloak class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50" 
-                 @click.self="closeModals()"
+                 @click.self="closeModals()">
                 <div class="relative top-20 mx-auto p-5 border w-full max-w-2xl shadow-lg rounded-md bg-white">
                     <div class="mb-4">
                         <h3 class="text-lg font-medium text-gray-900">Create New User</h3>
@@ -795,7 +795,7 @@
 
             <!-- Edit User Modal -->
             <div x-show="showEditModal" x-cloak class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50" 
-                 @click.self="closeModals()"
+                 @click.self="closeModals()">
                 <div class="relative top-20 mx-auto p-5 border w-full max-w-2xl shadow-lg rounded-md bg-white">
                     <div class="mb-4">
                         <h3 class="text-lg font-medium text-gray-900">Edit User</h3>
@@ -860,6 +860,7 @@
                     </form>
                 </div>
             </div>
+
         </div>
         
         <!-- Requests Page -->
@@ -1071,7 +1072,7 @@
 
             <!-- Request Details Modal -->
             <div x-show="showDetailsModal" x-cloak class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50" 
-                 @click.self="closeModals()"
+                 @click.self="closeModals()">
                 <div class="relative top-20 mx-auto p-5 border w-full max-w-2xl shadow-lg rounded-md bg-white">
                     <div class="mb-4">
                         <div class="flex justify-between items-start">
@@ -1159,7 +1160,7 @@
 
             <!-- Reject Request Modal -->
             <div x-show="showRejectModal" x-cloak class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50" 
-                 @click.self="closeModals()"
+                 @click.self="closeModals()">
                 <div class="relative top-20 mx-auto p-5 border w-full max-w-lg shadow-lg rounded-md bg-white">
                     <div class="mb-4">
                         <h3 class="text-lg font-medium text-gray-900">Reject Request</h3>

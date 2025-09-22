@@ -30,35 +30,6 @@ function app() {
             window.addEventListener('navigate', (e) => {
                 this.loadPage(e.detail.page);
             });
-            
-            // Initialize modal states for all components to prevent undefined errors
-            this.initializeModalStates();
-        },
-        
-        // Initialize modal states to prevent Alpine.js errors
-        initializeModalStates() {
-            // Functions page modals
-            this.showCreateModal = false;
-            this.showEditModal = false;
-            this.showExecuteModal = false;
-            this.createForm = {};
-            this.editForm = {};
-            this.executeForm = {};
-            this.selectedFunction = null;
-            this.creating = false;
-            this.updating = false;
-            this.executing = false;
-            
-            // Users page modals  
-            this.selectedUser = null;
-            this.isRoleDisabled = () => false;
-            
-            // Requests page modals
-            this.showDetailsModal = false;
-            this.showRejectModal = false;
-            this.selectedRequest = null;
-            this.rejectForm = {};
-            this.rejecting = false;
         },
 
         // Check authentication status
