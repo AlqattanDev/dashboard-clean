@@ -152,7 +152,7 @@ function requestsPage() {
         },
 
         // Get requests for current page
-        get paginatedRequests() {
+        paginatedRequests() {
             const start = (this.currentPage - 1) * this.pageSize;
             const end = start + this.pageSize;
             return this.filteredRequests.slice(start, end);

@@ -167,7 +167,11 @@ function functionsPage() {
 
         // Open edit modal
         openEditModal(functionItem) {
-            this.editForm = { ...functionItem };
+            this.editForm = {
+                ...functionItem,
+                // Ensure required_fields is always an array
+                required_fields: functionItem.required_fields || []
+            };
             this.selectedFunction = functionItem;
             this.showEditModal = true;
         },
@@ -326,6 +330,24 @@ function functionsPage() {
         // Remove URL parameter
         removeUrlParameter(index) {
             this.createForm.url_parameters.splice(index, 1);
+        },
+
+        // Add required field for edit form
+        addEditRequiredField() {
+            if (!Array.isArray(this.editForm.required_fields)) {
+                this.editForm.required_fields = [];
+            }
+            this.editForm.required_fields.push({
+                name: '',
+                type: 'string',
+                required: true,
+                description: ''
+            });
+        },
+
+        // Remove required field from edit form
+        removeEditRequiredField(index) {
+            this.editForm.required_fields.splice(index, 1);
         }
     }
 }
