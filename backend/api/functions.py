@@ -384,6 +384,15 @@ async def execute_function(
             parameters=execute_data.parameters
         )
         
+        # Auto-approve for admin users
+        if user_role == "admin":
+            RequestService.approve_request(
+                request_id=str(request["_id"]),
+                reviewer_id=current_user.get("id")
+            )
+            # Update the status in the response to reflect the auto-approval
+            request["status"] = "approved"
+        
         return {
             "message": "Function execution request created successfully",
             "request_id": str(request["_id"]),
